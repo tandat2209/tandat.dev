@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { FileUpload } from './components/file-upload';
 import { FilterInput } from './components/filter-input';
 import { FilterList } from './components/filter-list';
@@ -92,66 +92,70 @@ const HARViewer = () => {
   };
 
   return (
-    <div className="w-full max-w-[100vw] px-4">
-      <Card className="w-full">
-        <CardHeader>
-          <CardTitle>HAR Viewer & Sequence Diagram Generator</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            {/* Left Column */}
-            <div className="space-y-4">
-              <FileUpload onFileUpload={handleFileUpload} />
+    <div className="w-full max-w-[100vw] p-4">
+      <h1 className="text-2xl font-bold mb-4">HAR Viewer & Sequence Diagram Generator</h1>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {/* Left Column */}
+        <Card>
+          <CardHeader>
+            <CardTitle>HAR Analysis</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <FileUpload onFileUpload={handleFileUpload} />
 
-              <FilterInput
-                value={newUrlFilter}
-                onChange={setNewUrlFilter}
-                onAdd={() => addFilter('urlFilters', newUrlFilter)}
-                placeholder="Add URL filter (e.g. googleapis.com)"
-                buttonText="Add URL Filter"
+            <FilterInput
+              value={newUrlFilter}
+              onChange={setNewUrlFilter}
+              onAdd={() => addFilter('urlFilters', newUrlFilter)}
+              placeholder="Add URL filter (e.g. googleapis.com)"
+              buttonText="Add URL Filter"
+            />
+
+            <FilterInput
+              value={newMethodFilter}
+              onChange={setNewMethodFilter}
+              onAdd={() => addFilter('methodFilters', newMethodFilter)}
+              placeholder="Select HTTP Method"
+              buttonText="Add Method Filter"
+              disabled={!newMethodFilter}
+              options={HTTP_METHODS}
+            />
+
+            <div className="flex gap-4">
+              <FilterList
+                title="URL Filters"
+                filters={filters.urlFilters}
+                onRemove={(filter) => removeFilter('urlFilters', filter)}
               />
-
-              <FilterInput
-                value={newMethodFilter}
-                onChange={setNewMethodFilter}
-                onAdd={() => addFilter('methodFilters', newMethodFilter)}
-                placeholder="Select HTTP Method"
-                buttonText="Add Method Filter"
-                disabled={!newMethodFilter}
-                options={HTTP_METHODS}
+              <FilterList
+                title="Method Filters"
+                filters={filters.methodFilters}
+                onRemove={(filter) => removeFilter('methodFilters', filter)}
               />
+            </div>
 
-              <div className="flex gap-4">
-                <FilterList
-                  title="URL Filters"
-                  filters={filters.urlFilters}
-                  onRemove={(filter) => removeFilter('urlFilters', filter)}
-                />
-                <FilterList
-                  title="Method Filters"
-                  filters={filters.methodFilters}
-                  onRemove={(filter) => removeFilter('methodFilters', filter)}
+            {filteredEntries && <RequestList entries={filteredEntries} />}
+          </CardContent>
+        </Card>
+
+        {/* Right Column */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Sequence Diagram</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {mermaidDiagram && (
+              <div className="sticky top-4">
+                <MermaidDiagram
+                  chart={mermaidDiagram}
+                  title="Sequence Diagram"
+                  showRaw={true}
                 />
               </div>
-
-              {filteredEntries && <RequestList entries={filteredEntries} />}
-            </div>
-
-            {/* Right Column */}
-            <div className="h-full">
-              {mermaidDiagram && (
-                <div className="sticky top-4">
-                  <MermaidDiagram
-                    chart={mermaidDiagram}
-                    title="Sequence Diagram"
-                    showRaw={true}
-                  />
-                </div>
-              )}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+            )}
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };
