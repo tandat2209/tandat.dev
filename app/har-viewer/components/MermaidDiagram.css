@@ -1,0 +1,25 @@
+.mermaid-diagram {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.mermaid-diagram svg {
+  height: auto;
+  min-width: min-content;
+  max-width: 100%;
+}
+
+/* Optional: Add some styling for the diagram */
+.mermaid-diagram .actor {
+  fill: #f3f4f6;
+  stroke: #d1d5db;
+}
+
+.mermaid-diagram .messageText {
+  fill: #374151;
+  font-size: 12px;
+}
+
+.mermaid-diagram line {
+  stroke: #9ca3af;
+} 
