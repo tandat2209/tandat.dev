@@ -1,28 +1,21 @@
 'use client'
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { FileUpload } from './components/file-upload';
-import { FilterInput } from './components/filter-input';
-import { FilterList } from './components/filter-list';
 import { RequestList } from './components/request-list';
 import { parseHARFile, filterRequests, generateMermaidSequenceDiagram } from './utils/harProcessing';
 import { MermaidDiagram } from './components/mermaid-diagram';
 import { Har, HarEntry } from '@/types/har';
+import { InputTags } from '@/components/ui/input-tags';
+
 
 const HARViewer = () => {
   const [harData, setHarData] = useState<Har | null>(null);
   const [filteredEntries, setFilteredEntries] = useState<HarEntry[]>([]);
-  const [filters, setFilters] = useState<Record<string, string[]>>({
-    urlFilters: [],
-    methodFilters: []
-  });
+  const [urlFilters, setUrlFilters] = useState<string[]>([]);
+  const [methodFilters, setMethodFilters] = useState<string[]>(["GET", "POST", "PUT", "DELETE", "PATCH"]);
   const [mermaidDiagram, setMermaidDiagram] = useState('');
-  const [newUrlFilter, setNewUrlFilter] = useState('');
-  const [newMethodFilter, setNewMethodFilter] = useState('');
-
-  // Available HTTP methods
-  const HTTP_METHODS = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS'];
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -34,7 +27,7 @@ const HARViewer = () => {
         // Initial filtering
         const initialFiltered = filterRequests(
           parsedHAR.log.entries,
-          filters
+          { urlFilters, methodFilters }
         );
         setFilteredEntries(initialFiltered);
 
@@ -47,49 +40,19 @@ const HARViewer = () => {
     }
   };
 
-  const addFilter = (filterType: string, newFilter: string) => {
-    if (newFilter && !filters[filterType].includes(newFilter)) {
-      const updatedFilters = {
-        ...filters,
-        [filterType]: [...filters[filterType], newFilter]
-      };
-      setFilters(updatedFilters);
+  // Effect to handle filter changes
+  useEffect(() => {
+    if (!harData?.log.entries) return;
 
-      // Reapply filters
-      const refiltered = filterRequests(
-        harData?.log.entries || [],
-        updatedFilters
-      );
-      setFilteredEntries(refiltered);
-
-      // Regenerate diagram
-      const newDiagram = generateMermaidSequenceDiagram(refiltered);
-      setMermaidDiagram(newDiagram);
-
-      // Reset input
-      if (filterType === 'urlFilters') setNewUrlFilter('');
-      if (filterType === 'methodFilters') setNewMethodFilter('');
-    }
-  };
-
-  const removeFilter = (filterType: string, filterToRemove: string) => {
-    const updatedFilters = {
-      ...filters,
-      [filterType]: filters[filterType].filter((f: string) => f !== filterToRemove)
-    };
-    setFilters(updatedFilters);
-
-    // Reapply filters
     const refiltered = filterRequests(
-      harData?.log.entries || [],
-      updatedFilters
+      harData.log.entries,
+      { urlFilters, methodFilters }
     );
     setFilteredEntries(refiltered);
 
-    // Regenerate diagram
     const newDiagram = generateMermaidSequenceDiagram(refiltered);
     setMermaidDiagram(newDiagram);
-  };
+  }, [harData, urlFilters, methodFilters]);
 
   return (
     <div className="w-full max-w-[100vw] p-4">
@@ -103,36 +66,17 @@ const HARViewer = () => {
           <CardContent className="space-y-4">
             <FileUpload onFileUpload={handleFileUpload} />
 
-            <FilterInput
-              value={newUrlFilter}
-              onChange={setNewUrlFilter}
-              onAdd={() => addFilter('urlFilters', newUrlFilter)}
-              placeholder="Add URL filter (e.g. googleapis.com)"
-              buttonText="Add URL Filter"
+            <InputTags
+              value={urlFilters}
+              onChange={setUrlFilters}
+              placeholder="Add URL filter (e.g. googleapis.com) to exclude"
             />
 
-            <FilterInput
-              value={newMethodFilter}
-              onChange={setNewMethodFilter}
-              onAdd={() => addFilter('methodFilters', newMethodFilter)}
-              placeholder="Select HTTP Method"
-              buttonText="Add Method Filter"
-              disabled={!newMethodFilter}
-              options={HTTP_METHODS}
+            <InputTags
+              value={methodFilters}
+              onChange={setMethodFilters}
+              placeholder="Add HTTP Method filter (e.g. GET) to include"
             />
-
-            <div className="flex gap-4">
-              <FilterList
-                title="URL Filters"
-                filters={filters.urlFilters}
-                onRemove={(filter) => removeFilter('urlFilters', filter)}
-              />
-              <FilterList
-                title="Method Filters"
-                filters={filters.methodFilters}
-                onRemove={(filter) => removeFilter('methodFilters', filter)}
-              />
-            </div>
 
             {filteredEntries && <RequestList entries={filteredEntries} />}
           </CardContent>
