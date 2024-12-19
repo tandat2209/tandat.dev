@@ -1,9 +1,9 @@
 import React from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Entry } from '@/types/har';
+import { HarEntry } from '@/types/har';
 
 interface RequestListProps {
-  entries: Entry[];
+  entries: HarEntry[];
 }
 
 export const RequestList = ({ entries }: RequestListProps) => {
