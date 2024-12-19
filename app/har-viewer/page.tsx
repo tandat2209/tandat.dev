@@ -8,12 +8,12 @@ import { FilterList } from './components/filter-list';
 import { RequestList } from './components/request-list';
 import { parseHARFile, filterRequests, generateMermaidSequenceDiagram } from './utils/harProcessing';
 import { MermaidDiagram } from './components/mermaid-diagram';
-import { Har } from '@/types/har';
+import { Har, HarEntry } from '@/types/har';
 
 const HARViewer = () => {
   const [harData, setHarData] = useState<Har | null>(null);
-  const [filteredEntries, setFilteredEntries] = useState([]);
-  const [filters, setFilters] = useState({
+  const [filteredEntries, setFilteredEntries] = useState<HarEntry[]>([]);
+  const [filters, setFilters] = useState<Record<string, string[]>>({
     urlFilters: [],
     methodFilters: []
   });
@@ -24,8 +24,8 @@ const HARViewer = () => {
   // Available HTTP methods
   const HTTP_METHODS = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS'];
 
-  const handleFileUpload = async (event) => {
-    const file = event.target.files[0];
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
     if (file) {
       try {
         const parsedHAR = await parseHARFile(file);
@@ -47,7 +47,7 @@ const HARViewer = () => {
     }
   };
 
-  const addFilter = (filterType, newFilter) => {
+  const addFilter = (filterType: string, newFilter: string) => {
     if (newFilter && !filters[filterType].includes(newFilter)) {
       const updatedFilters = {
         ...filters,
@@ -57,7 +57,7 @@ const HARViewer = () => {
 
       // Reapply filters
       const refiltered = filterRequests(
-        harData.log.entries,
+        harData?.log.entries || [],
         updatedFilters
       );
       setFilteredEntries(refiltered);
@@ -72,16 +72,16 @@ const HARViewer = () => {
     }
   };
 
-  const removeFilter = (filterType, filterToRemove) => {
+  const removeFilter = (filterType: string, filterToRemove: string) => {
     const updatedFilters = {
       ...filters,
-      [filterType]: filters[filterType].filter(f => f !== filterToRemove)
+      [filterType]: filters[filterType].filter((f: string) => f !== filterToRemove)
     };
     setFilters(updatedFilters);
 
     // Reapply filters
     const refiltered = filterRequests(
-      harData.log.entries,
+      harData?.log.entries || [],
       updatedFilters
     );
     setFilteredEntries(refiltered);

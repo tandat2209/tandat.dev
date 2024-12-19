@@ -17,7 +17,7 @@ export const parseHARFile = (file: File): Promise<Har> => {
   });
 };
 
-export const filterRequests = (entries: HarEntry[], filters) => {
+export const filterRequests = (entries: HarEntry[], filters: Record<string, string[]>): HarEntry[] => {
   return entries.filter(entry => {
     const url = entry.request.url.toLowerCase();
     const method = entry.request.method.toLowerCase();
