@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { FileUpload } from './components/file-upload';
 import { FilterInput } from './components/filter-input';
@@ -8,9 +8,10 @@ import { FilterList } from './components/filter-list';
 import { RequestList } from './components/request-list';
 import { parseHARFile, filterRequests, generateMermaidSequenceDiagram } from './utils/harProcessing';
 import { MermaidDiagram } from './components/mermaid-diagram';
+import { Har } from '@/types/har';
 
 const HARViewer = () => {
-  const [harData, setHarData] = useState(null);
+  const [harData, setHarData] = useState<Har | null>(null);
   const [filteredEntries, setFilteredEntries] = useState([]);
   const [filters, setFilters] = useState({
     urlFilters: [],

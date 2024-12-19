@@ -1,10 +1,12 @@
+import { Har, HarEntry } from "@/types/har";
+
 // Utility functions for HAR processing
-export const parseHARFile = (file: File) => {
+export const parseHARFile = (file: File): Promise<Har> => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = (e) => {
       try {
-        const harData = JSON.parse(e.target.result);
+        const harData = JSON.parse(e.target?.result as string) as Har;
         resolve(harData);
       } catch (error) {
         reject(error);
@@ -15,7 +17,7 @@ export const parseHARFile = (file: File) => {
   });
 };
 
-export const filterRequests = (entries, filters) => {
+export const filterRequests = (entries: HarEntry[], filters) => {
   return entries.filter(entry => {
     const url = entry.request.url.toLowerCase();
     const method = entry.request.method.toLowerCase();
@@ -50,18 +52,18 @@ export const filterRequests = (entries, filters) => {
     );
 
     const isMethodFiltered = methodFilters.length === 0 || 
-      methodFilters.some(m => method.includes(m.toLowerCase()));
+      methodFilters.some((m: string) => method.includes(m.toLowerCase()));
 
     const isDomainFiltered = domainFilters.length === 0 || 
-      domainFilters.some(d => domain.includes(d.toLowerCase()));
+      domainFilters.some((d: string) => domain.includes(d.toLowerCase()));
 
     return isUrlFiltered && isMethodFiltered && isDomainFiltered;
   });
 };
 
-export const generateMermaidSequenceDiagram = (filteredEntries) => {
+export const generateMermaidSequenceDiagram = (filteredEntries: HarEntry[]) => {
   const participants = new Set(['Frontend']);
-  const interactions = [];
+  const interactions: string[] = [];
 
   filteredEntries.forEach((entry) => {
     const { method, url } = entry.request;
