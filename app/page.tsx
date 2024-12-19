@@ -1,22 +1,23 @@
 import ResumeCard from '@/components/resume-card'
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import Link from 'next/link'
+import { Network, FileJson, Layers } from "lucide-react"
 
 const projects = [
   {
-    icon: "🚀",
+    icon: <Network className="w-8 h-8" />,
     title: "HAR Viewer",
     description: "View and analyze HAR files, generate sequence diagrams, and filter requests.",
     href: "/har-viewer"
   },
   {
-    icon: "💻",
-    title: "Another Project",
-    description: "Description of another amazing project you've worked on.",
-    href: "/projects/another-project"
+    icon: <FileJson className="w-8 h-8" />,
+    title: "JSON Viewer",
+    description: "View and analyze JSON files, convert to table, and generate diagrams.",
+    href: "/json-viewer"
   },
   {
-    icon: "🎨",
+    icon: <Layers className="w-8 h-8" />,
     title: "Creative Project",
     description: "Showcase your creative work with a compelling description.",
     href: "/projects/creative-project"
