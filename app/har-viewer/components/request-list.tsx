@@ -1,6 +1,15 @@
 import React from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { HarEntry } from '@/types/har';
+import { Eye } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 
 interface RequestListProps {
   entries: HarEntry[];
@@ -24,6 +33,14 @@ export const RequestList = ({ entries }: RequestListProps) => {
     if (status >= 400 && status < 500) return 'text-orange-600';
     if (status >= 500) return 'text-red-600';
     return 'text-gray-600';
+  };
+
+  const formatBody = (content: string | null) => {
+    try {
+      return JSON.stringify(content, null, 2);
+    } catch {
+      return content;
+    }
   };
 
   return (
@@ -50,6 +67,33 @@ export const RequestList = ({ entries }: RequestListProps) => {
               <span className="text-gray-500 text-sm w-20 text-right">
                 {entry.time.toFixed(0)}ms
               </span>
+
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button variant="ghost" size="sm">
+                    <Eye className="h-4 w-4" />
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+                  <DialogHeader>
+                    <DialogTitle>{entry.request.url}</DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-4">
+                    <div>
+                      <h3 className="font-semibold mb-2">Request</h3>
+                      <pre className="bg-gray-100 p-4 rounded-lg overflow-x-auto">
+                        {formatBody(entry.request.postData?.text || 'No request body')}
+                      </pre>
+                    </div>
+                    <div>
+                      <h3 className="font-semibold mb-2">Response</h3>
+                      <pre className="bg-gray-100 p-4 rounded-lg overflow-x-auto">
+                        {formatBody(entry.response.content.text || 'No response body')}
+                      </pre>
+                    </div>
+                  </div>
+                </DialogContent>
+              </Dialog>
             </div>
           ))}
         </div>
