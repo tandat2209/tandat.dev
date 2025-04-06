@@ -2,47 +2,96 @@ import { FC } from 'react'
 import { motion } from 'framer-motion'
 import { Github, Linkedin, Globe } from 'lucide-react'
 
+const container = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+      delayChildren: 0.3
+    }
+  }
+}
+
+const item = {
+  hidden: { y: 20, opacity: 0 },
+  show: { 
+    y: 0, 
+    opacity: 1,
+    transition: {
+      type: "spring",
+      bounce: 0.4
+    }
+  }
+}
+
 const ResumeCard: FC = () => {
   return (
     <motion.div
       initial={{ scale: 0.9, opacity: 0 }}
       animate={{ scale: 1, opacity: 1 }}
       transition={{ duration: 0.5 }}
-      className="w-[400px] rounded-[2rem] bg-gradient-to-br from-[#4FACFE] to-[#00F2FE] p-1"
+      whileHover={{
+        scale: 1.02,
+        rotate: -1,
+        transition: { type: "spring", bounce: 0.4 }
+      }}
+      className="w-full max-w-[400px] relative"
     >
-      <div className="bg-white rounded-[1.9rem] p-6 h-full">
+      <motion.div
+        className="absolute inset-0 bg-gradient-to-br from-[#4FACFE] to-[#00F2FE] rounded-2xl opacity-20"
+        animate={{
+          rotate: [0, 2, -2, 2, 0],
+          scale: [1, 1.02, 0.98, 1.02, 1],
+        }}
+        transition={{
+          duration: 8,
+          repeat: Infinity,
+          ease: "linear"
+        }}
+      />
+      <div className="bg-white rounded-2xl p-6 h-full relative shadow-lg">
         <motion.div
+          variants={container}
+          initial="hidden"
+          animate="show"
           className="space-y-6"
-          initial={{ y: 20 }}
-          animate={{ y: 0 }}
-          transition={{ delay: 0.2 }}
         >
           {/* Profile Picture */}
-          <div className="flex justify-center">
+          <motion.div variants={item} className="flex justify-center">
             <motion.div
               className="w-24 h-24 rounded-full bg-gradient-to-br from-[#4FACFE] to-[#2BFF88] flex items-center justify-center text-3xl font-bold text-white shadow-lg"
-              whileHover={{ scale: 1.05, rotate: 5 }}
+              whileHover={{ scale: 1.1, rotate: 5 }}
               whileTap={{ scale: 0.95 }}
+              animate={{
+                scale: [1, 1.05, 1],
+                rotate: [0, -2, 0],
+              }}
+              transition={{
+                duration: 4,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
             >
               DN
             </motion.div>
-          </div>
+          </motion.div>
 
           {/* Name */}
-          <div className="text-center">
+          <motion.div variants={item} className="text-center">
             <h1 className="text-2xl font-bold bg-gradient-to-r from-[#4FACFE] to-[#2BFF88] bg-clip-text text-transparent">
               Dat Nguyen
             </h1>
             <p className="text-[#6B7280] mt-1">Fullstack Developer</p>
-          </div>
+          </motion.div>
 
           {/* Links */}
-          <div className="flex justify-center gap-4">
+          <motion.div variants={item} className="flex justify-center gap-4">
             <motion.a
               href="https://github.com/tandat2209"
               target="_blank"
               className="p-2 rounded-xl bg-[#E8F7FF] text-[#4FACFE] hover:bg-[#4FACFE] hover:text-white transition-colors"
-              whileHover={{ y: -2, rotate: -5 }}
+              whileHover={{ y: -4, rotate: -5, scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
             >
               <Github size={20} />
@@ -51,7 +100,7 @@ const ResumeCard: FC = () => {
               href="https://www.linkedin.com/in/tandat2209/"
               target="_blank"
               className="p-2 rounded-xl bg-[#E8FFF4] text-[#2BFF88] hover:bg-[#2BFF88] hover:text-white transition-colors"
-              whileHover={{ y: -2, rotate: 5 }}
+              whileHover={{ y: -4, rotate: 5, scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
             >
               <Linkedin size={20} />
@@ -60,57 +109,68 @@ const ResumeCard: FC = () => {
               href="https://tandat.dev"
               target="_blank"
               className="p-2 rounded-xl bg-[#FFF8E8] text-[#FFB344] hover:bg-[#FFB344] hover:text-white transition-colors"
-              whileHover={{ y: -2, rotate: -5 }}
+              whileHover={{ y: -4, rotate: -5, scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
             >
               <Globe size={20} />
             </motion.a>
-          </div>
+          </motion.div>
 
           {/* Skills */}
-          <div className="flex flex-wrap gap-2 justify-center">
+          <motion.div variants={item} className="flex flex-wrap gap-2 justify-center">
             {['React', 'TypeScript', 'Node.js', 'Next.js'].map((skill, index) => (
               <motion.span
                 key={skill}
                 className="px-3 py-1 rounded-full text-sm font-medium"
                 style={{
-                  backgroundColor: index % 2 === 0 ? '#E8F7FF' : '#E8FFF4',
+                  backgroundColor: `${index % 2 === 0 ? '#4FACFE' : '#2BFF88'}20`,
                   color: index % 2 === 0 ? '#4FACFE' : '#2BFF88'
                 }}
                 whileHover={{
-                  scale: 1.05,
-                  rotate: index % 2 === 0 ? -3 : 3
+                  scale: 1.1,
+                  rotate: index % 2 === 0 ? -5 : 5,
+                  y: -2
                 }}
                 whileTap={{ scale: 0.95 }}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{
+                  delay: 0.5 + (index * 0.1),
+                  type: "spring",
+                  bounce: 0.4
+                }}
               >
                 {skill}
               </motion.span>
             ))}
-          </div>
+          </motion.div>
 
           {/* Fun decorative elements */}
           <motion.div
-            className="absolute -z-10 top-10 right-10 w-6 h-6 rounded bg-[#FFB344] opacity-20"
+            className="absolute -z-10 top-4 right-4 w-3 h-3 rounded-full bg-[#FFB344] opacity-20"
             animate={{
-              rotate: 360,
               scale: [1, 1.2, 1],
-            }}
-            transition={{
-              duration: 5,
-              repeat: Infinity,
-              ease: "linear"
-            }}
-          />
-          <motion.div
-            className="absolute -z-10 bottom-10 left-10 w-4 h-4 rounded bg-[#2BFF88] opacity-20"
-            animate={{
-              rotate: -360,
-              scale: [1, 1.5, 1],
+              opacity: [0.2, 0.3, 0.2],
+              rotate: [0, 180, 360]
             }}
             transition={{
               duration: 4,
               repeat: Infinity,
-              ease: "linear"
+              ease: "easeInOut"
+            }}
+          />
+          <motion.div
+            className="absolute -z-10 bottom-4 left-4 w-2 h-2 rounded-full bg-[#2BFF88] opacity-20"
+            animate={{
+              scale: [1, 1.5, 1],
+              opacity: [0.1, 0.2, 0.1],
+              rotate: [360, 180, 0]
+            }}
+            transition={{
+              duration: 5,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: 0.5
             }}
           />
         </motion.div>

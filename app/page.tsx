@@ -66,14 +66,14 @@ const iconAnimation = {
 
 export default function Home() {
   return (
-    <main className="min-w-screen min-h-screen bg-gray-100 flex flex-col items-center justify-center px-5 py-5 gap-20">
+    <main className="min-h-screen flex flex-col items-center justify-center px-4 py-8 md:px-5 md:py-20 gap-8 md:gap-20 bg-gradient-to-br from-gray-50 via-gray-50 to-blue-50">
       <ResumeCard />
-      <div className="w-full overflow-visible px-4 py-8">
+      <div className="w-full">
         <motion.section
           variants={container}
           initial="hidden"
           animate="show"
-          className="flex flex-wrap justify-center gap-6 overflow-visible"
+          className="flex flex-wrap justify-center gap-4 md:gap-6"
         >
           {projects.map((project, index) => (
             <motion.div
@@ -89,7 +89,7 @@ export default function Home() {
                 type: "spring",
                 bounce: 0.6
               }}
-              className="relative"
+              className="relative w-full max-w-[300px]"
               style={{
                 transformOrigin: "center center",
                 perspective: "1000px"
@@ -107,7 +107,7 @@ export default function Home() {
                 }}
               />
               <Link href={project.href}>
-                <Card className="relative w-[300px] bg-white rounded-2xl p-6 cursor-pointer border-0 shadow-lg">
+                <Card className="relative bg-white rounded-2xl p-6 cursor-pointer border-0 shadow-lg h-full">
                   <div className="space-y-4">
                     <motion.div
                       className="w-16 h-16 rounded-2xl flex items-center justify-center"
