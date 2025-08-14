@@ -61,24 +61,113 @@ export const filterRequests = (entries: HarEntry[], filters: Record<string, stri
   });
 };
 
+// Helper function to extract and normalize domain names
+const extractDomainInfo = (url: string) => {
+  try {
+    const hostname = new URL(url).hostname.toLowerCase();
+    
+    // Remove www. prefix
+    const cleanHostname = hostname.replace(/^www\./, '');
+    
+    // Split into parts
+    const parts = cleanHostname.split('.');
+    
+    if (parts.length >= 2) {
+      const domain = parts.slice(-2).join('.');
+      const subdomain = parts.length > 2 ? parts[0] : null;
+      const service = parts.length > 2 ? parts[1] : null;
+      
+      return {
+        full: cleanHostname,
+        domain,
+        subdomain,
+        service,
+        parts
+      };
+    }
+    
+    return {
+      full: cleanHostname,
+      domain: cleanHostname,
+      subdomain: null,
+      service: null,
+      parts
+    };
+  } catch {
+    return {
+      full: url,
+      domain: url,
+      subdomain: null,
+      service: null,
+      parts: [url]
+    };
+  }
+};
+
+// Function to generate a consistent actor name for similar domains
+const generateActorName = (domainInfo: ReturnType<typeof extractDomainInfo>, existingActors: Set<string>): string => {
+  const { domain, subdomain, service } = domainInfo;
+  
+  // If it's a common API domain, use a friendly name
+  if (domain === 'googleapis.com') {
+    return subdomain ? `${subdomain} API` : 'Google API';
+  }
+  
+  if (domain === 'github.com') {
+    return subdomain ? `${subdomain} GitHub` : 'GitHub';
+  }
+  
+  if (domain === 'api.github.com') {
+    return 'GitHub API';
+  }
+  
+  // For subdomains, try to create meaningful names
+  if (subdomain && service) {
+    const actorName = `${subdomain} ${service}`;
+    if (!existingActors.has(actorName)) {
+      return actorName;
+    }
+  }
+  
+  if (subdomain) {
+    const actorName = `${subdomain} ${domain}`;
+    if (!existingActors.has(actorName)) {
+      return actorName;
+    }
+  }
+  
+  // Fallback to domain name
+  return domain;
+};
+
 export const generateMermaidSequenceDiagram = (filteredEntries: HarEntry[]) => {
   const participants = new Set(['Frontend']);
   const interactions: string[] = [];
+  const actorMap = new Map<string, string>(); // Maps domain to actor name
 
   filteredEntries.forEach((entry) => {
     const { method, url } = entry.request;
     const { status } = entry.response;
     
-    // Extract domain as participant
-    const participantName = new URL(url).hostname
-      .replace('www.', '')
-      .split('.')[0];
-    participants.add(participantName);
+    // Extract domain information
+    const domainInfo = extractDomainInfo(url);
+    const originalDomain = domainInfo.full;
+    
+    // Generate consistent actor name
+    let actorName = actorMap.get(originalDomain);
+    if (!actorName) {
+      actorName = generateActorName(domainInfo, participants);
+      actorMap.set(originalDomain, actorName);
+      participants.add(actorName);
+    }
 
     // Create sequence diagram interaction
+    const pathname = new URL(url).pathname;
+    const shortPath = pathname.length > 30 ? pathname.substring(0, 30) + '...' : pathname;
+    
     interactions.push(
-      `Frontend->>+${participantName}: ${method} ${new URL(url).pathname}\n` +
-      `${participantName}-->>-Frontend: ${status} Response`
+      `Frontend->>+${actorName}: ${method} ${shortPath}\n` +
+      `${actorName}-->>-Frontend: ${status} Response`
     );
   });
 

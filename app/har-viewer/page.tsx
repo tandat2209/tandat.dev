@@ -8,7 +8,13 @@ import { parseHARFile, filterRequests, generateMermaidSequenceDiagram } from './
 import { MermaidDiagram } from './components/mermaid-diagram';
 import { Har, HarEntry } from '@/types/har';
 import { InputTags } from '@/components/ui/input-tags';
+import { Button } from '@/components/ui/button';
 
+// Local storage keys
+const STORAGE_KEYS = {
+  URL_FILTERS: 'har-viewer-url-filters',
+  METHOD_FILTERS: 'har-viewer-method-filters',
+};
 
 const HARViewer = () => {
   const [harData, setHarData] = useState<Har | null>(null);
@@ -16,6 +22,40 @@ const HARViewer = () => {
   const [urlFilters, setUrlFilters] = useState<string[]>([]);
   const [methodFilters, setMethodFilters] = useState<string[]>(["GET", "POST", "PUT", "DELETE", "PATCH"]);
   const [mermaidDiagram, setMermaidDiagram] = useState('');
+
+  // Load filters from localStorage on component mount
+  useEffect(() => {
+    try {
+      const savedUrlFilters = localStorage.getItem(STORAGE_KEYS.URL_FILTERS);
+      const savedMethodFilters = localStorage.getItem(STORAGE_KEYS.METHOD_FILTERS);
+
+      if (savedUrlFilters) {
+        setUrlFilters(JSON.parse(savedUrlFilters));
+      }
+      if (savedMethodFilters) {
+        setMethodFilters(JSON.parse(savedMethodFilters));
+      }
+    } catch (error) {
+      console.warn('Failed to load filters from localStorage:', error);
+    }
+  }, []);
+
+  // Save filters to localStorage whenever they change
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEYS.URL_FILTERS, JSON.stringify(urlFilters));
+    } catch (error) {
+      console.warn('Failed to save URL filters to localStorage:', error);
+    }
+  }, [urlFilters]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEYS.METHOD_FILTERS, JSON.stringify(methodFilters));
+    } catch (error) {
+      console.warn('Failed to save method filters to localStorage:', error);
+    }
+  }, [methodFilters]);
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -66,17 +106,46 @@ const HARViewer = () => {
           <CardContent className="space-y-4">
             <FileUpload onFileUpload={handleFileUpload} />
 
-            <InputTags
-              value={urlFilters}
-              onChange={setUrlFilters}
-              placeholder="Add URL filter (e.g. googleapis.com) to exclude"
-            />
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-700">URL Filters (exclude patterns)</label>
+              <InputTags
+                value={urlFilters}
+                onChange={setUrlFilters}
+                placeholder="Add URL filter (e.g. googleapis.com) to exclude"
+              />
+            </div>
 
-            <InputTags
-              value={methodFilters}
-              onChange={setMethodFilters}
-              placeholder="Add HTTP Method filter (e.g. GET) to include"
-            />
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-700">HTTP Method Filters (include only)</label>
+              <InputTags
+                value={methodFilters}
+                onChange={setMethodFilters}
+                placeholder="Add HTTP Method filter (e.g. GET) to include"
+              />
+            </div>
+
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setUrlFilters([]);
+                  setMethodFilters(["GET", "POST", "PUT", "DELETE", "PATCH"]);
+                }}
+              >
+                Reset to Defaults
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setUrlFilters([]);
+                  setMethodFilters([]);
+                }}
+              >
+                Clear All Filters
+              </Button>
+            </div>
 
             {filteredEntries && <RequestList entries={filteredEntries} />}
           </CardContent>
