@@ -44,7 +44,7 @@ export const RequestList = ({ entries }: RequestListProps) => {
               <span className={`px-3 py-1 rounded-full text-sm font-medium ${getMethodColor(entry.request.method)}`}>
                 {entry.request.method}
               </span>
-              <span className="text-gray-600 truncate flex-1">
+              <span className="text-gray-600 flex-1 break-all text-sm" title={entry.request.url}>
                 {entry.request.url}
               </span>
               <span className={`font-medium ${getStatusColor(entry.response.status)}`}>
