@@ -208,7 +208,7 @@ export const RequestDetailModal = ({ entry, trigger }: RequestDetailModalProps) 
                         variant="outline"
                         size="sm"
                         className="mt-2"
-                        onClick={() => copyToClipboard(entry.request.postData.text || '')}
+                        onClick={() => copyToClipboard(entry?.request?.postData?.text || '')}
                       >
                         <Copy className="h-3 w-3 mr-1" />
                         Copy Body
@@ -258,7 +258,7 @@ export const RequestDetailModal = ({ entry, trigger }: RequestDetailModalProps) 
                   </h4>
                   <div className="bg-gray-50 p-3 rounded border">
                     <pre className="text-sm overflow-x-auto whitespace-pre-wrap">
-                      {formatBody(entry.response.content.text, entry.response.content.mimeType)}
+                      {formatBody(entry?.response?.content?.text || null, entry?.response?.content?.mimeType)}
                     </pre>
                     <Button
                       variant="outline"

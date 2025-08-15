@@ -1,4 +1,5 @@
-;
+"use client";
+
 import Link from 'next/link';
 import { Github } from 'lucide-react';
 import JsonTableConverter from './components/JsonTableConverter'
